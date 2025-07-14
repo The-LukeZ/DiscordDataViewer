@@ -16,7 +16,7 @@ const _handle: Handle = async ({ event, resolve }) => {
     return new Response(undefined, { status: 404 });
   }
 
-  const sessionToken = event.cookies.get("session");
+  const sessionToken = event.cookies.get("ddv_session");
 
   if (sessionToken) {
     const sessionData = await getSession(sessionToken);

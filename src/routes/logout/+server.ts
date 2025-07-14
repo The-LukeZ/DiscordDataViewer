@@ -19,7 +19,7 @@ export async function GET({ locals, cookies, url }) {
     });
 
     await deleteSession(locals.sessionId);
-    cookies.delete("session", { path: "/" });
+    cookies.delete("ddv_session", { path: "/" });
   }
 
   const reason = url.searchParams.get("reason") || "logout";

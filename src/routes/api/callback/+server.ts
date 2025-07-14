@@ -45,9 +45,8 @@ export async function GET({ url, cookies }) {
   await setSession(sessionToken, data);
 
   // Make cookie expire after 1 hour
-  cookies.set("session", sessionToken, {
+  cookies.set("ddv_session", sessionToken, {
     path: "/",
-    httpOnly: true,
     maxAge: 3600 * 24, // 1 day
   });
 
