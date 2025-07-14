@@ -13,7 +13,7 @@
     <nav class="flex w-full flex-row justify-between gap-4">
       <div>
         Made by <a
-          href="https://github.com/The-LukeZ"
+          href="https://lukez.sherpa.software/"
           target="_blank"
           class="link-link-hover link-primary"
         >
