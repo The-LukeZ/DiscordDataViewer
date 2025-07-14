@@ -1,77 +1,86 @@
-# Kit-Forge Starter template
+# Discord Data Viewer
 
-A simple, easy-to-use starter template for quickly getting your SvelteKit project up and running.
+A modern web application for viewing and exporting your Discord user data and guild information.
 
-## Quick Start 🚀
+## Features
 
-Follow these steps to set up and run your SvelteKit application locally:
+- 🔐 **Secure OAuth2 Authentication** - Login with your Discord account
+- 👤 **User Profile Viewer** - View detailed user information including avatar, locale, and primary guild
+- 🏰 **Guild Data Explorer** - Browse all your Discord servers with detailed information
+- 📋 **Data Export** - Copy guild data to clipboard in JSON format with customizable field selection
+- 📱 **Responsive Design** - Works seamlessly on desktop and mobile devices
+- 🎨 **Modern UI** - Built with DaisyUI and TailwindCSS
 
-### 1. Navigate to Your Project
+## Quick Start
 
-First, move into your project's directory:
+### Prerequisites
 
-```bash
-cd {your_project_name}
-```
+- Node.js 20+
+- pnpm (recommended package manager)
+- Discord application
 
-### 2. Select Node Version
+### Installation
 
-Ensure you're using Node version 22 (or your required version) with nvm:
-
-```bash
-nvm use 22
-```
-
-If you don't have Node 22 installed yet, install it first:
-
-```bash
-nvm install 22
-```
-
-### 3. Install Dependencies
-
-Install your project's dependencies with npm:
+1. Clone the repository:
 
 ```bash
-npm install
+git clone https://github.com/The-LukeZ/discordDataViever.git
+cd discordDataViever
 ```
 
-### 4. Run the Development Server
-
-Start the SvelteKit development server:
+2. Install dependencies:
 
 ```bash
-npm run dev
+pnpm install
 ```
 
-### 5. Open Your Application
-
-Open your web browser and go to:
+3. Set up environment variables:
 
 ```bash
-https://localhost:5173
+cp .env.example .env
 ```
 
-You should now see your SvelteKit application running.
+Configure your Discord OAuth2 credentials in `.env`
 
-## 📚 Next Steps
-
-Build & Deploy: When ready, build your project with:
+4. Start the development server:
 
 ```bash
-npm run build
+pnpm dev
 ```
 
-## 📚 Resources
+Visit `http://localhost:5173` to view the application.
 
-[SvelteKit Documentation](https://svelte.dev/docs/kit/introduction)
+## Usage
 
-[Svelte Documentation](https://svelte.dev/docs/svelte/overview)
+1. **Login** - Authenticate with your Discord account
+2. **Fetch User Data** - Load your Discord profile information
+3. **Fetch Guilds** - Load all your Discord servers
+4. **Export Data** - Select specific fields and copy guild data as JSON
 
-[Tailwind V4 Documentation](https://tailwindcss.com/docs/installation/using-vite)
+## Technology Stack
 
-[DaisyUi components](https://daisyui.com/components/)
+- **Frontend**: SvelteKit 5, TypeScript
+- **Styling**: TailwindCSS 4, DaisyUI
+- **API**: Discord API v10
+- **Runtime**: Node.js
+- **Package Manager**: pnpm
 
-## Support
+## Development
 
-If you encounter any issues or have questions, please send and email to ethan.steip@gmail.com
+```bash
+# Development server
+pnpm dev
+
+# Type checking
+pnpm check
+
+# Format code
+pnpm format
+
+# Build for production
+pnpm build
+```
+
+## License
+
+This project is private and not licensed for public use.
