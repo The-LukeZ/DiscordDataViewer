@@ -3,7 +3,7 @@ import { discordRoutes } from "$lib";
 import { deleteSession } from "$lib/server/cache";
 import { redirect } from "@sveltejs/kit";
 
-export async function GET({ locals, cookies }) {
+export async function GET({ locals, cookies, url }) {
   if (locals.sessionId && locals.tokenData) {
     await fetch(discordRoutes.tokenRevoke(), {
       method: "POST",
@@ -22,5 +22,7 @@ export async function GET({ locals, cookies }) {
     cookies.delete("session", { path: "/" });
   }
 
-  redirect(303, "/");
+  const reason = url.searchParams.get("reason") || "logout";
+
+  redirect(303, "/" + (reason ? `?reason=${encodeURIComponent(reason)}` : ""));
 }

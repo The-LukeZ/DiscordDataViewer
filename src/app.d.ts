@@ -20,6 +20,8 @@ declare global {
 
     // interface Platform {}
   }
+
+  type LoggedOutReason = "session_expired" | "logout";
 }
 
 export {};
