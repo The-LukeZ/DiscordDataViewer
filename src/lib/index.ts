@@ -4,7 +4,7 @@ export const discordApi = "https://discord.com/api/v10" as const;
 
 export const discordRoutes = {
   user: () => `${discordApi}/users/@me` as const,
-  userGuilds: () => `${discordApi}/users/@me/guilds` as const,
+  userGuilds: () => `${discordApi}/users/@me/guilds?with_counts=true` as const,
   token: () => `${discordApi}/oauth2/token` as const,
   tokenRevoke: () => `${discordApi}/oauth2/token/revoke` as const,
   authorize: () => `${discordApi}/oauth2/authorize` as const,
