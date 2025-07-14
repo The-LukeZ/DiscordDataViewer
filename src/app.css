@@ -42,4 +42,17 @@
 
 :root {
   font-family: "Inter Variable", sans-serif;
+  --footer-height: 3rem;
+}
+
+@layer utilities {
+  main {
+    min-height: calc(100vh - var(--footer-height) - 5px); /* 5px for the spacing towards the end of the page */
+  }
+
+  footer {
+    height: var(--footer-height);
+    width: 100%;
+    margin-bottom: 5px;
+  }
 }
