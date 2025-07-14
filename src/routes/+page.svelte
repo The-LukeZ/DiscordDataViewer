@@ -27,7 +27,7 @@
 </script>
 
 {#if !data.loggedIn}
-  <div class="flex h-screen flex-col items-center justify-center gap-4">
+  <div class="flex h-full grow flex-col items-center justify-center gap-4">
     {#if reason}
       <div class="alert alert-info">
         <svg
