@@ -1,10 +1,9 @@
-@import '@fontsource-variable/inter';
-@import 'tailwindcss';
+@import "@fontsource-variable/inter";
+@import "tailwindcss";
 
 @plugin "daisyui" {
   themes: sunset --default;
 }
-
 
 @plugin "daisyui/theme" {
   name: "sunset";
@@ -41,8 +40,6 @@
   --noise: 0;
 }
 
-
-
 :root {
-  font-family: 'Inter Variable', sans-serif;
+  font-family: "Inter Variable", sans-serif;
 }

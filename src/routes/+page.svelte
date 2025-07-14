@@ -6,7 +6,7 @@
   let loading = $state(false);
 </script>
 
-<div class="min-h-screen w-full max-w-[900px] mx-auto space-y-5">
+<div class="mx-auto min-h-screen w-full max-w-[900px] space-y-5">
   {#if !data.loggedIn}
     <div class="grid h-screen place-items-center">
       <div class="card bg-base-300 w-96 shadow-sm">

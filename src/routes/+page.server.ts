@@ -22,7 +22,7 @@ export const actions = {
         response_type: "code",
         scope: "identify guilds",
         state: state,
-        prompt: "none"
+        prompt: "none",
       }).toString();
 
     cookies.set("oauth_state", state, {
