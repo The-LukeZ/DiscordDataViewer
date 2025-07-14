@@ -5,6 +5,7 @@ import { v4 } from "uuid";
 export async function load({ locals }) {
   return {
     loggedIn: locals.loggedIn,
+    sessionId: locals.sessionId,
   };
 }
 
