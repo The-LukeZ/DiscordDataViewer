@@ -6,6 +6,7 @@ export const discordRoutes = {
   user: () => `${discordApi}/users/@me` as const,
   userGuilds: () => `${discordApi}/users/@me/guilds` as const,
   token: () => `${discordApi}/oauth2/token` as const,
+  tokenRevoke: () => `${discordApi}/oauth2/token/revoke` as const,
   authorize: () => `${discordApi}/oauth2/authorize` as const,
 };
 
