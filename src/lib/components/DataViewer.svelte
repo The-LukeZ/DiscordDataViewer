@@ -6,6 +6,7 @@
     RESTAPIPartialCurrentUserGuild,
   } from "discord-api-types/v10";
   import { fade } from "svelte/transition";
+  import Loading from "./Loading.svelte";
 
   // Use this component when the user is logged in
 
@@ -19,20 +20,6 @@
     permissions: "Permissions",
     approximate_member_count: "Approximate Member Count",
     approximate_presence_count: "Approximate Presence Count",
-  };
-
-  const userFieldsLabels = {
-    id: "ID",
-    username: "Username",
-    discriminator: "Discriminator",
-    avatar: "Avatar URL",
-    banner: "Banner URL",
-    locale: "Locale",
-    global_name: "Global Name (Display Name)",
-    accent_color: "Banner Color",
-    primaryGuildTag: "Primary Guild Tag",
-    primaryGuildId: "Primary Guild ID",
-    created: "Created At",
   };
 
   // What guild fields to copy
@@ -53,6 +40,16 @@
   let selectedGuild = $state<RESTAPIPartialCurrentUserGuild | null>(null);
   let jsonDialog: HTMLDialogElement;
   let copyDialog: HTMLDialogElement;
+  const expandables = $state({
+    user: {
+      open: false,
+      loading: false,
+    },
+    guilds: {
+      open: false,
+      loading: false,
+    },
+  });
 
   function placeholderIcon(guild: RESTAPIPartialCurrentUserGuild): string {
     return guild.name
@@ -65,6 +62,10 @@
 
   async function fetchUser() {
     try {
+      expandables.user = {
+        open: true,
+        loading: true,
+      };
       const response = await fetch("/api/user");
       if (!response.ok) {
         throw new Error("Failed to fetch user");
@@ -72,11 +73,17 @@
       user = await response.json();
     } catch (error) {
       console.error("Error fetching user:", error);
+    } finally {
+      expandables.user.loading = false;
     }
   }
 
   async function fetchGuilds() {
     try {
+      expandables.guilds = {
+        open: true,
+        loading: true,
+      };
       const response = await fetch("/api/user/guilds");
       if (!response.ok) {
         throw new Error("Failed to fetch guilds");
@@ -84,6 +91,8 @@
       guilds = await response.json();
     } catch (error) {
       console.error("Error fetching guilds:", error);
+    } finally {
+      expandables.guilds.loading = false;
     }
   }
 
@@ -123,86 +132,105 @@
   }
 </script>
 
-<div class="flex h-full w-full flex-col gap-4 p-2.5 sm:p-5">
+<div class="navbar">
   <!-- Controls -->
-  <div class="flex w-full flex-row flex-wrap items-center justify-center gap-2">
-    <button class="btn btn-primary" onclick={fetchUser}>Fetch User</button>
-    <button class="btn btn-primary" onclick={fetchGuilds}>Fetch Guilds</button>
+  <div class="navbar-start gap-2">
+    <button class="btn btn-primary btn-soft" onclick={fetchUser}>Fetch User</button>
+    <button class="btn btn-primary btn-soft" onclick={fetchGuilds}>Fetch Guilds</button>
     {#if guilds.length > 0}
-      <button class="btn btn-primary" onclick={openCopyModal}>Copy Guilds Data</button>
+      <button class="btn btn-accent btn-soft" onclick={openCopyModal}>Copy Guilds Data</button>
     {/if}
+  </div>
+  <div class="navbar-end">
+    <a href="/logout" class="btn btn-secondary btn-soft" aria-label="Logout">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-log-out-icon lucide-log-out"
+        ><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path
+          d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+        /></svg
+      >
+    </a>
   </div>
 </div>
 
 <div class="bg-base-200 border-base-300 collapse overflow-x-auto border">
-  <input type="checkbox" />
+  <input type="checkbox" bind:checked={expandables.user.open} />
   <div class="collapse-title font-semibold">User Information</div>
-  {#if !user}
-    <div class="collapse-content">
-      <ul class="list bg-base-100 rounded-box shadow-md">
-        <li class="p-4 text-gray-500">User data not loaded. Click "Fetch User" to load.</li>
-      </ul>
-    </div>
-  {:else}
-    <!-- TODO: Add support for avatar decoration -->
-    <div class="collapse-content gap-2" transition:fade>
-      <div class="card bg-base-100 mb-2">
-        <div class="card-body flex flex-row items-center gap-4">
-          <img
-            src={parseIconToURL(user.avatar, user.id, "user")}
-            alt="User Avatar"
-            class="h-16 w-16 rounded-full"
-          />
-          <div class="flex flex-col">
-            <h2 class="card-title">{user.username}</h2>
-            <span class="text-sm text-gray-500">#{user.discriminator}</span>
-            <span class="text-sm text-gray-500">{user.id}</span>
+  <div class="collapse-content gap-2" transition:fade>
+    <div class="bg-base-100 rounded-2xl p-2">
+      {#if user && !expandables.user.loading}
+        <!-- TODO: Add support for avatar decoration -->
+        <div class="card mb-2">
+          <div class="card-body flex flex-row items-center gap-4">
+            <img
+              src={parseIconToURL(user.avatar, user.id, "user")}
+              alt="User Avatar"
+              class="h-16 w-16 rounded-full"
+            />
+            <div class="flex flex-col">
+              <h2 class="card-title">{user.username}</h2>
+              <span class="text-sm text-gray-500">#{user.discriminator}</span>
+              <span class="text-sm text-gray-500">{user.id}</span>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="grid grid-cols-2 space-y-1">
-        <p class="font-bold">Global Name:</p>
-        <p>{user.global_name || user.username}</p>
-        <p class="font-bold">Locale:</p>
-        <p>{user.locale}</p>
-        <p class="font-bold">Accent Color:</p>
-        <div class="inline-flex gap-1">
-          <div class="h-6 w-6 overflow-clip rounded-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <rect
-                width="100%"
-                height="100%"
-                fill={user.accent_color
-                  ? `#${user.accent_color.toString(16).padStart(6, "0")}`
-                  : "transparent"}
-              />
-            </svg>
+        <div class="grid grid-cols-2 space-y-1 p-3">
+          <p class="font-bold">Global Name:</p>
+          <p>{user.global_name || user.username}</p>
+          <p class="font-bold">Locale:</p>
+          <p>{user.locale}</p>
+          <p class="font-bold">Accent Color:</p>
+          <div class="inline-flex gap-1">
+            <div class="h-6 w-6 overflow-clip rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <rect
+                  width="100%"
+                  height="100%"
+                  fill={user.accent_color
+                    ? `#${user.accent_color.toString(16).padStart(6, "0")}`
+                    : "transparent"}
+                />
+              </svg>
+            </div>
+            <p>
+              {user.accent_color ? `#${user.accent_color.toString(16).padStart(6, "0")}` : "None"}
+            </p>
           </div>
-          <p>
-            {user.accent_color ? `#${user.accent_color.toString(16).padStart(6, "0")}` : "None"}
-          </p>
+          <p class="font-bold">Primary Guild Tag:</p>
+          {#if user.primary_guild}
+            <p>{user.primary_guild.tag}</p>
+            <p class="font-bold">Primary Guild ID</p>
+            <p class="text-sm text-gray-500">{user.primary_guild.identity_guild_id}</p>
+          {:else}
+            <p class="text-sm text-gray-500">No primary guild set</p>
+          {/if}
         </div>
-        <p class="font-bold">Primary Guild Tag:</p>
-        {#if user.primary_guild}
-          <p>{user.primary_guild.tag}</p>
-          <p class="font-bold">Primary Guild ID</p>
-          <p class="text-sm text-gray-500">{user.primary_guild.identity_guild_id}</p>
-        {:else}
-          <p class="text-sm text-gray-500">No primary guild set</p>
-        {/if}
-      </div>
+      {:else if !user && expandables.user.loading}
+        <li class="grid w-full place-items-center p-5"><Loading /></li>
+      {:else}
+        <ul class="list bg-base-100 rounded-box shadow-md">
+          <li class="p-4 text-gray-500">User data not loaded. Click "Fetch User" to load.</li>
+        </ul>
+      {/if}
     </div>
-  {/if}
+  </div>
 </div>
 
 <div class="bg-base-200 border-base-300 collapse overflow-x-auto border">
-  <input type="checkbox" />
+  <input type="checkbox" bind:checked={expandables.guilds.open} />
   <div class="collapse-title font-semibold">Your Guilds</div>
   <div class="collapse-content">
     <ul class="list bg-base-100 rounded-box shadow-md">
-      {#if guilds.length === 0}
-        <li class="p-4 text-gray-500">No guilds found. Click "Fetch Guilds" to load.</li>
-      {:else}
+      {#if !expandables.guilds.loading && guilds.length > 0}
         {#each guilds as guild (guild.id)}
           {@const guildIconUrl = parseIconToURL(guild.icon, guild.id, "guild")}
           <li class="list-row">
@@ -228,6 +256,10 @@
             >
           </li>
         {/each}
+      {:else if expandables.guilds.loading}
+        <li class="grid w-full place-items-center p-5"><Loading /></li>
+      {:else}
+        <li class="p-4 text-gray-500">No guilds found. Click "Fetch Guilds" to load.</li>
       {/if}
     </ul>
   </div>
