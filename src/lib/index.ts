@@ -10,21 +10,25 @@ export const discordRoutes = {
   authorize: () => `${discordApi}/oauth2/authorize` as const,
 };
 
+type ParseIconEndpoint = "guild" | "user" | "banner" | "avatarDecoration";
+
 export function parseIconToURL(
   icon_hash: string | null | undefined,
   id: string,
-  endpoint?: "guild" | "user" | "banner",
+  endpoint?: ParseIconEndpoint,
 ): string | undefined;
 export function parseIconToURL(
   icon_hash: string | null | undefined,
   id: string,
   endpoint: "user",
 ): string;
+export function parseIconToURL(icon_hash: string, id: string, endpoint: "avatarDecoration"): string;
 
 export function parseIconToURL(
   icon_hash: string | null | undefined,
   id: string,
-  endpoint: "guild" | "user" | "banner" = "guild",
+  endpoint: "guild" | "user" | "banner" | "avatarDecoration" = "guild",
+  size: number = 512,
 ) {
   if (!icon_hash && endpoint !== "user") return undefined;
 
@@ -39,7 +43,12 @@ export function parseIconToURL(
     guild: "icons/",
     user: "avatars/",
     banner: "banners/",
+    avatarDecoration: "avatar-decoration-presets/",
   } as const;
 
-  return "https://cdn.discordapp.com/" + Routes[endpoint] + `${id}/${icon_hash}.webp`;
+  if (endpoint === "avatarDecoration") {
+    return `https://cdn.discordapp.com/${Routes[endpoint]}${icon_hash}?size=${size}`;
+  }
+
+  return "https://cdn.discordapp.com/" + Routes[endpoint] + `${id}/${icon_hash}.webp?size=${size}`;
 }
