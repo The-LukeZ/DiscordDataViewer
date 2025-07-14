@@ -48,7 +48,7 @@ export async function GET({ url, cookies }) {
   cookies.set("session", sessionToken, {
     path: "/",
     httpOnly: true,
-    maxAge: 3600,
+    maxAge: 3600 * 24, // 1 day
   });
 
   return redirect(302, "/");
