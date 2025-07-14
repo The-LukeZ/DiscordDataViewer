@@ -8,6 +8,7 @@
   import { fade } from "svelte/transition";
   import Loading from "./Loading.svelte";
   import { goto } from "$app/navigation";
+  import { innerWidth } from "svelte/reactivity/window";
 
   // Use this component when the user is logged in
 
@@ -197,46 +198,71 @@
   }
 </script>
 
-<div class="navbar">
-  <!-- Controls -->
-  <div class="navbar-start gap-2">
-    <button
-      class="btn btn-primary btn-soft"
-      onclick={fetchUser}
-      disabled={expandables.user.loading}
+{#snippet navItems()}
+  <button class="btn btn-primary btn-soft" onclick={fetchUser} disabled={expandables.user.loading}>
+    Fetch User
+  </button>
+  <button
+    class="btn btn-primary btn-soft"
+    onclick={fetchGuilds}
+    disabled={expandables.guilds.loading}
+  >
+    Fetch Guilds
+  </button>
+  {#if guilds.length > 0}
+    <button class="btn btn-accent btn-soft" onclick={openCopyModal}>Copy Guilds Data</button>
+  {/if}
+  <a href="/logout?reason=logout" class="btn btn-secondary btn-soft sm:ml-auto" aria-label="Logout">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
     >
-      Fetch User
-    </button>
-    <button
-      class="btn btn-primary btn-soft"
-      onclick={fetchGuilds}
-      disabled={expandables.guilds.loading}
-    >
-      Fetch Guilds
-    </button>
-    {#if guilds.length > 0}
-      <button class="btn btn-accent btn-soft" onclick={openCopyModal}>Copy Guilds Data</button>
-    {/if}
-  </div>
-  <div class="navbar-end">
-    <a href="/logout?reason=logout" class="btn btn-secondary btn-soft" aria-label="Logout">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="lucide lucide-log-out-icon lucide-log-out"
-        ><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path
-          d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
-        /></svg
+      <path d="m16 17 5-5-5-5" />
+      <path d="M21 12H9" />
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    </svg>
+  </a>
+{/snippet}
+
+<div class="flex flex-row justify-end gap-2 py-2 md:justify-start">
+  {#if innerWidth?.current && innerWidth.current > 640}
+    {@render navItems()}
+  {:else}
+    <div class="dropdown dropdown-end">
+      <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+      <div tabindex="0" class="btn btn-primary btn-outline btn-square size-12">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M3 12h18" />
+          <path d="M3 6h18" />
+          <path d="M3 18h18" />
+        </svg>
+      </div>
+      <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+      <ul
+        tabindex="0"
+        class="dropdown-content menu rounded-box bg-base-100 border-base-300 mt-1 w-52 gap-2 border-4 p-2 shadow"
       >
-    </a>
-  </div>
+        {@render navItems()}
+      </ul>
+    </div>
+  {/if}
 </div>
 
 <div class="bg-base-200 border-base-300 collapse-arrow collapse overflow-x-auto border">
@@ -245,14 +271,30 @@
   <div class="collapse-content gap-2" transition:fade>
     <div class="bg-base-100 rounded-2xl p-2">
       {#if user && !expandables.user.loading}
+        {@const userIconUrl = parseIconToURL(user.avatar, user.id, "user")}
         <!-- TODO: Add support for avatar decoration -->
         <div class="card mb-2">
           <div class="card-body flex flex-row items-center gap-4">
-            <img
-              src={parseIconToURL(user.avatar, user.id, "user")}
-              alt="User Avatar"
-              class="h-16 w-16 rounded-full"
-            />
+            <a href={userIconUrl} class="relative">
+              <img
+                src={userIconUrl}
+                alt="User Avatar"
+                class="size-18 rounded-full"
+                loading="lazy"
+              />
+              {#if user.avatar_decoration_data}
+                <img
+                  src={parseIconToURL(
+                    user.avatar_decoration_data.asset,
+                    user.id,
+                    "avatarDecoration",
+                  )}
+                  alt="User Avatar Decoration"
+                  class="absolute inset-0 size-18 rounded-full"
+                  loading="lazy"
+                />
+              {/if}
+            </a>
             <div class="flex flex-col">
               <h2 class="card-title">{user.username}</h2>
               <span class="text-sm text-gray-500">#{user.discriminator}</span>
@@ -294,9 +336,7 @@
       {:else if !user && expandables.user.loading}
         <li class="grid w-full place-items-center p-5"><Loading /></li>
       {:else}
-        <ul class="list bg-base-100 rounded-box shadow-md">
-          <li class="p-4 text-gray-500">User data not loaded. Click "Fetch User" to load.</li>
-        </ul>
+        <p class="p-4 text-gray-500">User data not loaded. Click "Fetch User" to load.</p>
       {/if}
     </div>
   </div>
@@ -309,7 +349,7 @@
     {#if sortedGuilds.length > 0}
       <fieldset class="fieldset">
         <legend class="fieldset-legend">Sort Guilds</legend>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-col items-start gap-2 sm:flex-row">
           <label class="label">
             <select
               class="select select-sm select-bordered select-primary"
