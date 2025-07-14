@@ -7,10 +7,11 @@
   } from "discord-api-types/v10";
   import { fade } from "svelte/transition";
   import Loading from "./Loading.svelte";
+  import { goto } from "$app/navigation";
 
   // Use this component when the user is logged in
 
-  const copyFieldsLabels: Record<keyof RESTAPIPartialCurrentUserGuild, string> = {
+  const guildKeysWithLabels: Record<keyof RESTAPIPartialCurrentUserGuild, string> = {
     id: "ID",
     name: "Name",
     icon: "Icon",
@@ -50,6 +51,62 @@
       loading: false,
     },
   });
+  let sorting = $state({
+    field: null as keyof RESTAPIPartialCurrentUserGuild | null,
+    direction: "asc" as "asc" | "desc",
+  });
+  let sortingLabels = $derived.by<{ asc: string; desc: string } | null>(() => {
+    if (!sorting.field) return null;
+
+    if (
+      sorting.field === "features" ||
+      sorting.field === "approximate_member_count" ||
+      sorting.field === "approximate_presence_count"
+    ) {
+      return {
+        asc: "Least First",
+        desc: "Most First",
+      };
+    } else if (sorting.field === "id") {
+      return {
+        asc: "Oldest First",
+        desc: "Newest First",
+      };
+    } else {
+      return {
+        asc: "Ascending (A-Z)",
+        desc: "Descending (Z-A)",
+      };
+    }
+  });
+
+  let sortedGuilds = $derived.by(() => {
+    if (!sorting.field) {
+      return guilds;
+    }
+
+    return [...guilds].sort((a, b) => {
+      const aValue = a[sorting.field as keyof RESTAPIPartialCurrentUserGuild];
+      const bValue = b[sorting.field as keyof RESTAPIPartialCurrentUserGuild];
+
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return sorting.direction === "asc"
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      } else if (typeof aValue === "number" && typeof bValue === "number") {
+        return sorting.direction === "asc" ? aValue - bValue : bValue - aValue;
+      } else if (typeof aValue === "boolean" && typeof bValue === "boolean") {
+        return sorting.direction === "asc"
+          ? (aValue ? 1 : 0) - (bValue ? 1 : 0)
+          : (bValue ? 1 : 0) - (aValue ? 1 : 0);
+      } else if (Array.isArray(aValue) && Array.isArray(bValue)) {
+        return sorting.direction === "asc"
+          ? aValue.length - bValue.length
+          : bValue.length - aValue.length;
+      }
+      return 0;
+    });
+  });
 
   function placeholderIcon(guild: RESTAPIPartialCurrentUserGuild): string {
     return guild.name
@@ -68,6 +125,10 @@
       };
       const response = await fetch("/api/user");
       if (!response.ok) {
+        if (response.status === 410) {
+          // A 410 is only thrown, when the user isn't logged in, so maybe the session has expired
+          return goto("/logout?reason=session_expired", { replaceState: true });
+        }
         throw new Error("Failed to fetch user");
       }
       user = await response.json();
@@ -86,6 +147,10 @@
       };
       const response = await fetch("/api/user/guilds");
       if (!response.ok) {
+        if (response.status === 410) {
+          // A 410 is only thrown, when the user isn't logged in, so maybe the session has expired
+          return goto("/logout?reason=session_expired", { replaceState: true });
+        }
         throw new Error("Failed to fetch guilds");
       }
       guilds = await response.json();
@@ -162,7 +227,7 @@
   </div>
 </div>
 
-<div class="bg-base-200 border-base-300 collapse overflow-x-auto border">
+<div class="bg-base-200 border-base-300 collapse-arrow collapse overflow-x-auto border">
   <input type="checkbox" bind:checked={expandables.user.open} />
   <div class="collapse-title font-semibold">User Information</div>
   <div class="collapse-content gap-2" transition:fade>
@@ -225,13 +290,41 @@
   </div>
 </div>
 
-<div class="bg-base-200 border-base-300 collapse overflow-x-auto border">
+<div class="bg-base-200 border-base-300 collapse-arrow collapse overflow-x-auto border">
   <input type="checkbox" bind:checked={expandables.guilds.open} />
   <div class="collapse-title font-semibold">Your Guilds</div>
   <div class="collapse-content">
+    {#if sortedGuilds.length > 0}
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">Sort Guilds</legend>
+        <div class="flex items-center gap-2">
+          <label class="label">
+            <select
+              class="select select-sm select-bordered select-primary"
+              bind:value={sorting.field}
+            >
+              {#each Object.entries(guildKeysWithLabels) as [key, label]}
+                <option value={key}>{label}</option>
+              {/each}
+            </select>
+          </label>
+          {#if sortingLabels}
+            <label class="label">
+              <select
+                class="select select-sm select-bordered select-primary"
+                bind:value={sorting.direction}
+              >
+                <option value="asc">{sortingLabels.asc}</option>
+                <option value="desc">{sortingLabels.desc}</option>
+              </select>
+            </label>
+          {/if}
+        </div>
+      </fieldset>
+    {/if}
     <ul class="list bg-base-100 rounded-box shadow-md">
-      {#if !expandables.guilds.loading && guilds.length > 0}
-        {#each guilds as guild (guild.id)}
+      {#if !expandables.guilds.loading && sortedGuilds.length > 0}
+        {#each sortedGuilds as guild (guild.id)}
           {@const guildIconUrl = parseIconToURL(guild.icon, guild.id, "guild")}
           <li class="list-row">
             <div>
@@ -288,7 +381,7 @@
     <fieldset class="fieldset space-y-1">
       <legend class="fieldset-legend">Select the fields you want to copy</legend>
       <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        {#each Object.entries(copyFieldsLabels) as [key, label]}
+        {#each Object.entries(guildKeysWithLabels) as [key, label]}
           <label class="label text-sm">
             <input
               type="checkbox"
