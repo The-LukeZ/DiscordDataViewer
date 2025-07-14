@@ -23,6 +23,7 @@ const _handle: Handle = async ({ event, resolve }) => {
       event.locals.tokenData = sessionData;
       event.locals.loggedIn = true;
     } else {
+      event.cookies.delete("session", { path: "/" });
       event.locals.loggedIn = false;
     }
   } else {
