@@ -1,6 +1,7 @@
 import type { RESTPostOAuth2AccessTokenResult } from "discord-api-types/v10";
 import Cloudflare from "cloudflare";
 import { env } from "$env/dynamic/private";
+import * as Sentry from "@sentry/sveltekit";
 
 const cf = new Cloudflare({
   apiEmail: env.CLOUDFLARE_EMAIL,
@@ -13,9 +14,18 @@ type CloudflareKVJSONResponse = {
 };
 
 async function getSession(token: string) {
-  const res = await cf.kv.namespaces.values.get(env.KV_NAMESPACE_ID, token, {
-    account_id: env.CLOUDFLARE_ACCOUNT_ID,
-  });
+  const res = await cf.kv.namespaces.values
+    .get(env.KV_NAMESPACE_ID, token, {
+      account_id: env.CLOUDFLARE_ACCOUNT_ID,
+    })
+    .catch((err) => {
+      console.error("Error fetching session:", err);
+      return null;
+    });
+
+  if (!res) {
+    return null;
+  }
 
   const content = await res.blob();
   const text = await content.text();
@@ -24,7 +34,7 @@ async function getSession(token: string) {
     const jsonWithStrings = JSON.parse(text);
     return JSON.parse(jsonWithStrings.value) as RESTPostOAuth2AccessTokenResult;
   } catch (error) {
-    console.error("Failed to parse JSON:", error);
+    Sentry.captureException(error);
     return null;
   }
 }
