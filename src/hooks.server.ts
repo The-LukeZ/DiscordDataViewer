@@ -32,7 +32,7 @@ const _handle: Handle = async ({ event, resolve }) => {
 
   if (event.url.pathname.startsWith("/api/") && event.url.pathname !== "/api/callback") {
     if (!event.locals.loggedIn) {
-      return new Response(null, { status: 401, statusText: "Unauthorized" });
+      return new Response(null, { status: 410, statusText: "Gone" });
     }
   }
 
