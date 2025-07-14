@@ -200,14 +200,26 @@
 <div class="navbar">
   <!-- Controls -->
   <div class="navbar-start gap-2">
-    <button class="btn btn-primary btn-soft" onclick={fetchUser}>Fetch User</button>
-    <button class="btn btn-primary btn-soft" onclick={fetchGuilds}>Fetch Guilds</button>
+    <button
+      class="btn btn-primary btn-soft"
+      onclick={fetchUser}
+      disabled={expandables.user.loading}
+    >
+      Fetch User
+    </button>
+    <button
+      class="btn btn-primary btn-soft"
+      onclick={fetchGuilds}
+      disabled={expandables.guilds.loading}
+    >
+      Fetch Guilds
+    </button>
     {#if guilds.length > 0}
       <button class="btn btn-accent btn-soft" onclick={openCopyModal}>Copy Guilds Data</button>
     {/if}
   </div>
   <div class="navbar-end">
-    <a href="/logout" class="btn btn-secondary btn-soft" aria-label="Logout">
+    <a href="/logout?reason=logout" class="btn btn-secondary btn-soft" aria-label="Logout">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
