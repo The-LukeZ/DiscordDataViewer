@@ -50,5 +50,6 @@ export async function GET({ url, cookies }) {
     maxAge: 3600 * 24, // 1 day
   });
 
-  return redirect(302, "/");
+  // The timestamp is used to prevent caching issues
+  return redirect(302, `/?reason=${Date.now()}`);
 }
