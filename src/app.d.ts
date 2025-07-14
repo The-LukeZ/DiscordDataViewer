@@ -7,10 +7,12 @@ declare global {
 
     interface Locals {
       loggedIn: boolean;
+      sessionId: string | null;
       tokenData?: RESTPostOAuth2AccessTokenResult;
     }
 
     interface PageData {
+      sessionId: string | null;
       loggedIn: boolean;
     }
 
