@@ -5,7 +5,6 @@ import { discordRoutes } from "$lib";
 import { setSession } from "$lib/server/cache.js";
 import { redirect } from "@sveltejs/kit";
 import type { RESTPostOAuth2AccessTokenResult } from "discord-api-types/v10";
-import NodeCache from "node-cache";
 import { v4 as uuidV4 } from "uuid";
 
 export async function GET({ url, cookies }) {
@@ -43,7 +42,7 @@ export async function GET({ url, cookies }) {
 
   const sessionToken = uuidV4();
 
-  setSession(sessionToken, data);
+  await setSession(sessionToken, data);
 
   // Make cookie expire after 1 hour
   cookies.set("session", sessionToken, {
