@@ -46,7 +46,7 @@
         <span>{reasonText}</span>
       </div>
     {/if}
-    <div class="card bg-base-300 w-96 shadow-sm">
+    <div class="card bg-base-300 shadow-base-300 w-full max-w-96 shadow-sm">
       <div class="card-body items-center">
         <h2 class="card-title">Log in with Discord</h2>
         <form
