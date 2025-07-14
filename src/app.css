@@ -47,7 +47,9 @@
 
 @layer utilities {
   main {
-    min-height: calc(100vh - var(--footer-height) - 5px); /* 5px for the spacing towards the end of the page */
+    min-height: calc(
+      100vh - var(--footer-height) - 5px
+    ); /* 5px for the spacing towards the end of the page */
   }
 
   footer {
