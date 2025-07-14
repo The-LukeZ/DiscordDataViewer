@@ -3,9 +3,10 @@ import * as Sentry from "@sentry/sveltekit";
 import { getSession } from "$lib/server/cache";
 import type { Handle } from "@sveltejs/kit";
 import { dev } from "$app/environment";
+import { PUBLIC_SENTRY_DSN } from "$env/static/public";
 
 Sentry.init({
-  dsn: "https://2564b960a14c382a2dc38b48edeed802@o4508704165265408.ingest.de.sentry.io/4509663839518800",
+  dsn: PUBLIC_SENTRY_DSN,
 });
 
 export const handleError = Sentry.handleErrorWithSentry();
