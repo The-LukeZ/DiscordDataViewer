@@ -2,10 +2,11 @@ import { env } from "$env/dynamic/private";
 import { discordRoutes } from "$lib";
 import { v4 } from "uuid";
 
-export async function load({ locals }) {
+export async function load({ locals, url }) {
   return {
     loggedIn: locals.loggedIn,
     sessionId: locals.sessionId,
+    reason: (url.searchParams.get("reason") || null) as LoggedOutReason | null,
   };
 }
 
