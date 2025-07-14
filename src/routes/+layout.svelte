@@ -16,6 +16,7 @@
           href="https://lukez.sherpa.software/"
           target="_blank"
           class="link-link-hover link-primary"
+          aria-label="LukeZ' Personal Website"
         >
           LukeZ
         </a>
