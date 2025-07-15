@@ -41,6 +41,14 @@ const _handle: Handle = async ({ event, resolve }) => {
 
   event.locals.sessionId = sessionToken || null;
 
+  // To prevent caching by the CDN
+  // ? Can this maybe be removed when self-hosting?
+  event.setHeaders({
+    "Cache-Control": "no-cache, no-store, must-revalidate",
+    Pragma: "no-cache",
+    Expires: "0",
+  });
+
   return resolve(event);
 };
 
