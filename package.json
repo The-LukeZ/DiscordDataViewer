@@ -1,7 +1,7 @@
 {
   "name": "discord-data-viewer",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "repository": {
     "url": "https://github.com/The-LukeZ/DiscordDataViewer"
