@@ -52,3 +52,14 @@ export function parseIconToURL(
 
   return "https://cdn.discordapp.com/" + Routes[endpoint] + `${id}/${icon_hash}.webp?size=${size}`;
 }
+
+/**
+ * Checks if the user has a specific permission.
+ * @param permissionStr The permission string to check (This is the bigint value of a bitfield)
+ * @param perms The permission to check against.
+ * @returns True if the user has the permission, false otherwise.
+ */
+export function hasPermission(permissionStr: string, perm: bigint | number) {
+  const permissionValue = BigInt(permissionStr);
+  return (permissionValue & BigInt(perm)) === BigInt(perm);
+}
