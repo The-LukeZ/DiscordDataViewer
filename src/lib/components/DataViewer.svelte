@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { parseIconToURL } from "$lib";
-  import type {
-    APIUser,
-    RESTGetAPICurrentUserGuildsResult,
-    RESTAPIPartialCurrentUserGuild,
+  import { hasPermission, parseIconToURL } from "$lib";
+  import {
+    type APIUser,
+    type RESTGetAPICurrentUserGuildsResult,
+    type RESTAPIPartialCurrentUserGuild,
+    GuildFeature,
   } from "discord-api-types/v10";
   import { fade } from "svelte/transition";
   import Loading from "./Loading.svelte";
@@ -347,7 +348,50 @@
   <div class="collapse-title font-semibold">Your Guilds</div>
   <div class="collapse-content">
     {#if sortedGuilds.length > 0}
-      <fieldset class="fieldset">
+      <!-- Overview -->
+      <table class="table-zebra table">
+        <tbody>
+          <tr>
+            <td class="font-bold">Total Guilds</td>
+            <td>{sortedGuilds.length}</td>
+          </tr>
+          <tr>
+            <td class="font-bold">Total Members</td>
+            <td>
+              {sortedGuilds.reduce((acc, guild) => acc + (guild.approximate_member_count || 0), 0)}
+            </td>
+          </tr>
+          <tr>
+            <td class="font-bold">Owner</td>
+            <td>{sortedGuilds.filter((guild) => guild.owner).length}</td>
+          </tr>
+          <tr>
+            <td class="font-bold">Admin (Excluding Owner)</td>
+            <td>
+              {sortedGuilds.filter((g) => !g.owner && hasPermission(g.permissions, 8)).length}
+            </td>
+          </tr>
+          <tr>
+            <td class="font-bold">Verified / Partnered</td>
+            <td class="inline-flex gap-2">
+              <span>
+                {sortedGuilds.filter((g) => g.features.includes(GuildFeature.Verified)).length}
+              </span>
+              <span>/</span>
+              <span>
+                {sortedGuilds.filter((g) => g.features.includes(GuildFeature.Partnered)).length}
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td class="font-bold">Discoverable</td>
+            <td>
+              {sortedGuilds.filter((g) => g.features.includes(GuildFeature.Discoverable)).length}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <fieldset class="fieldset mt-4">
         <legend class="fieldset-legend">Sort Guilds</legend>
         <div class="flex flex-col items-start gap-2 sm:flex-row">
           <label class="label">
