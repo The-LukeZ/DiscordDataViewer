@@ -1,7 +1,23 @@
 <script lang="ts">
+  import { page } from "$app/state";
+  import Head from "$lib/components/Head.svelte";
   import "../app.css";
   let { children } = $props();
 </script>
+
+<Head
+  seo_config={{
+    title: "Discord Data Viewer",
+    description:
+      "A simple tool to view your Discord user data, guilds and copy your guilds data. (Customizable options for copying!)",
+    url: page.url.origin + page.url.pathname,
+    site_name: "Discord Data Viewer",
+    author_name: "LukeZ",
+    language: "en",
+    twitter_handle: "@lukez_dev",
+    twitter_card_type: "summary",
+  }}
+/>
 
 <div class="mx-auto min-h-screen w-full max-w-[900px] px-4">
   <main class="mx-auto flex w-full grow flex-col space-y-5">
